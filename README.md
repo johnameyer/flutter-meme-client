@@ -1,4 +1,4 @@
-# reddit_memes
+# flutter_meme_client
 
 A new Flutter project.
 

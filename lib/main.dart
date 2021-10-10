@@ -9,8 +9,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Startup Name Generator',
-      home: Scaffold(body: MemeListView()),
+      title: 'Meme Browser',
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Meme Browser')),
+        body: MemeListView(),
+      ),
     );
   }
 }
@@ -65,18 +68,29 @@ class _MemeListViewState extends State<MemeListView> {
   }
 
   @override
-  Widget build(BuildContext context) =>
-      PagedListView<String?, dynamic>.separated(
-        pagingController: _pagingController,
-        builderDelegate: PagedChildBuilderDelegate<dynamic>(
-          itemBuilder: (context, item, index) =>
-              _buildRow(item as Map<String, dynamic>),
-        ),
-        separatorBuilder: (context, index) => const Divider(),
-      );
+  Widget build(BuildContext context) => PagedListView<String?, dynamic>(
+      pagingController: _pagingController,
+      builderDelegate: PagedChildBuilderDelegate<dynamic>(
+        itemBuilder: (context, item, index) =>
+            _buildRow(item as Map<String, dynamic>),
+      ));
 
   Widget _buildRow(Map<String, dynamic> o) {
-    return Image.network(o['data']['url']);
+    return Wrap(
+      children: [
+        Card(
+          child: Container(
+            child: Image.network(o['data']['url'], fit: BoxFit.contain),
+            constraints: BoxConstraints.loose(Size(
+              MediaQuery.of(context).size.width,
+              2 * MediaQuery.of(context).size.height / 3,
+            )),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+          ),
+        ),
+      ],
+      alignment: WrapAlignment.center,
+    );
     //   ListTile(
     // title: Text(
     //   o['data']['title'],
