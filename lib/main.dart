@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:infinite_scroll_pagination/infinite_scroll_pagination.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 void main() => runApp(MyApp());
 
@@ -76,20 +80,43 @@ class _MemeListViewState extends State<MemeListView> {
       ));
 
   Widget _buildRow(Map<String, dynamic> o) {
-    return Wrap(
-      children: [
-        Card(
-          child: Container(
-            child: Image.network(o['data']['url'], fit: BoxFit.contain),
-            constraints: BoxConstraints.loose(Size(
-              MediaQuery.of(context).size.width,
-              2 * MediaQuery.of(context).size.height / 3,
-            )),
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+    return GestureDetector(
+      child: Wrap(
+        children: [
+          Card(
+            child: Container(
+              child: Image.network(o['data']['url'], fit: BoxFit.contain),
+              constraints: BoxConstraints.loose(Size(
+                MediaQuery.of(context).size.width,
+                2 * MediaQuery.of(context).size.height / 3,
+              )),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            ),
           ),
-        ),
-      ],
-      alignment: WrapAlignment.center,
+        ],
+        alignment: WrapAlignment.center,
+      ),
+      onLongPress: () async {
+        var shared = false;
+        if(Platform.isAndroid || Platform.isIOS) {
+          try {
+            var response = await http.get(Uri.parse(o['data']['url']));
+            final directory = (await getTemporaryDirectory()).path;
+            final path = '$directory/cache.png';
+            File imgFile = File(path);
+            imgFile.writeAsBytesSync(response.bodyBytes);
+            await Share.shareFiles([path]);
+            shared = true;
+          } catch (e, t) {
+            print(e);
+            print(t);
+          }
+        }
+        if(!shared) {
+          print(o['data']['url']);
+          await Share.share(o['data']['url']);
+        }
+      },
     );
     //   ListTile(
     // title: Text(
